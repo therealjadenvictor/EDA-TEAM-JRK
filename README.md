@@ -2,7 +2,7 @@
 
 Repository for the lab component project of the course **Exploratory Data Analysis (EDA)**.
 **TEAM MEMBERS**
-JADEN VICTOR PALOCCARAN 25BAI0174
+-JADEN VICTOR PALOCCARAN 25BAI0174
 -RALPH BLESSON S 25BAI
 -KRISHA SINGH 25BAI  
 
