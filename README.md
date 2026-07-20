@@ -3,6 +3,6 @@ Repository for the project of the lab component of the course EXPLORATORY DATA A
 
 
 Personal Repositories:
-JADEN:https://github.com/therealjadenvictor/EDA_LAB
+JADEN:https://github.com/therealjadenvictor/EDA_LAB \n
 RALPH:
 KRISHA:
