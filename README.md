@@ -9,5 +9,5 @@ Repository for the lab component project of the course **Exploratory Data Analys
 
 ## Personal Repositories
 - **Jaden:** https://github.com/therealjadenvictor/EDA_LAB
-- **Ralph:**
+- **Ralph:** https://github.com/Rxxlph/25BAI0176.git
 - **Krisha:** https://github.com/krishaphobic/EDAPersonalRepo
