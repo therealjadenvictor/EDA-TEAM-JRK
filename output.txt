@@ -1,0 +1,147 @@
+Python 3.14.0 (tags/v3.14.0:ebf955d, Oct  7 2025, 10:15:03) [MSC v.1944 64 bit (AMD64)] on win32
+Enter "help" below or click "Help" above for more information.
+
+=================== RESTART: C:\Users\messa\Downloads\EDA.py ===================
+==================================================
+STEP 1: MEMORY-AWARE DATA INGESTION & AUDIT
+==================================================
+[+] Ingesting dataset into memory...
+[+] Parsing timestamps (ISO8601 format)...
+
+[+] Loaded Dataset Shape : 5,000,000 rows x 18 columns
+[+] Memory footprint     : 1816.05 MB
+
+--- Class Distribution Audit ---
+Legitimate (0) : 4,820,447 (96.41%)
+Fraudulent (1) : 179,553 (3.59%)
+
+--- Duplicate Check ---
+Exact duplicate rows detected: 0
+==================================================
+
+==================================================
+STEP 2: TIME-AWARE LEAKAGE-SAFE DATA SPLITTING
+==================================================
+[+] Sorting 5,000,000 records chronologically by 'timestamp'...
+
+--- Partition Breakdown ---
+
+Training (70%):
+  • Rows         : 3,500,000
+  • Date Horizon : 2023-01-01 00:09:26.241974  -->  2023-09-14 00:46:55.449294
+  • Fraud Count  : 125,453 (3.58% prevalence)
+
+Validation (15%):
+  • Rows         : 750,000
+  • Date Horizon : 2023-09-14 00:46:56.982477  -->  2023-11-07 17:06:46.114390
+  • Fraud Count  : 27,019 (3.60% prevalence)
+
+Test Lockbox (15%):
+  • Rows         : 750,000
+  • Date Horizon : 2023-11-07 17:07:02.851902  -->  2024-01-01 22:58:30.131850
+  • Fraud Count  : 27,081 (3.61% prevalence)
+
+[✓] Sanity Check Passed: Zero temporal overlap across partitions.
+==================================================
+
+==================================================
+STEP 3: FEATURE ENGINEERING & TRAIN-ONLY PREPROCESSING
+==================================================
+[+] Extracting temporal features and dropping leaking column ('fraud_type')...
+[+] Fitting preprocessor STRICTLY on Training set...
+[+] Transforming Validation and Test sets using fitted training parameters...
+
+[✓] Preprocessing Complete:
+  • Processed Train Shape      : 3,500,000 rows x 33 features
+  • Processed Validation Shape : 750,000 rows x 33 features
+  • Processed Test Shape       : 750,000 rows x 33 features
+==================================================
+
+==================================================
+STEP 4: MODEL TRAINING & COST-SENSITIVE IMBALANCE HANDLING
+==================================================
+[+] Training Set Class Balance: 3,374,547 Legitimate | 125,453 Fraud
+[+] Calculated Imbalance Scale Weight: 26.90
+
+[+] Training Logistic Regression (Baseline)...
+  • Logistic Regression (Baseline) trained successfully.
+
+[+] Training LightGBM Classifier...
+[LightGBM] [Info] Number of positive: 125453, number of negative: 3374547
+[LightGBM] [Info] Auto-choosing row-wise multi-threading, the overhead of testing was 0.032091 seconds.
+You can set `force_row_wise=true` to remove the overhead.
+And if memory is not enough, you can set `force_col_wise=true`.
+[LightGBM] [Info] Total Bins 982
+[LightGBM] [Info] Number of data points in the train set: 3500000, number of used features: 33
+[LightGBM] [Info] [binary:BoostFromScore]: pavg=0.035844 -> initscore=-3.292085
+[LightGBM] [Info] Start training from score -3.292085
+  • LightGBM Classifier trained successfully.
+
+[+] Training Random Forest Classifier...
+  • Random Forest Classifier trained successfully.
+
+[✓] Model Training Complete.
+==================================================
+
+==================================================
+STEP 5: VALIDATION-SET THRESHOLD OPTIMIZATION
+==================================================
+
+[+] Scanning threshold space for Logistic Regression (Baseline)...
+  • Selected Optimal Validation Threshold: 0.49 (Val F1: 0.0695)
+
+[+] Scanning threshold space for LightGBM Classifier...
+  • Selected Optimal Validation Threshold: 0.32 (Val F1: 0.0841)
+
+[+] Scanning threshold space for Random Forest Classifier...
+  • Selected Optimal Validation Threshold: 0.23 (Val F1: 0.0841)
+
+[✓] Threshold Optimization Complete.
+==================================================
+
+==================================================
+STEP 6: FINAL EVALUATION ON UNTOUCHED TEST SET
+==================================================
+
+[+] Evaluating Logistic Regression (Baseline) on Locked Test Set...
+  • Applied Threshold : 0.49
+  • PR-AUC (AUPRC)    : 0.0338
+  • ROC-AUC           : 0.4803
+  • Precision         : 0.0361
+  • Recall            : 0.9996
+  • Fraud F1-Score    : 0.0697
+  • MCC               : -0.0003
+  • Confusion Matrix  : TP=27,071 | FP=722,673 | FN=10 | TN=246
+  • Est. Error Cost   : $3,614,365.00 (c_FN=$100, c_FP=$5)
+
+[+] Evaluating LightGBM Classifier on Locked Test Set...
+  • Applied Threshold : 0.32
+  • PR-AUC (AUPRC)    : 0.0441
+  • ROC-AUC           : 0.5926
+  • Precision         : 0.0440
+  • Recall            : 0.9993
+  • Fraud F1-Score    : 0.0842
+  • MCC               : 0.0902
+  • Confusion Matrix  : TP=27,063 | FP=588,373 | FN=18 | TN=134,546
+  • Est. Error Cost   : $2,943,665.00 (c_FN=$100, c_FP=$5)
+
+[+] Evaluating Random Forest Classifier on Locked Test Set...
+  • Applied Threshold : 0.23
+  • PR-AUC (AUPRC)    : 0.0440
+  • ROC-AUC           : 0.5937
+  • Precision         : 0.0440
+  • Recall            : 1.0000
+  • Fraud F1-Score    : 0.0842
+  • MCC               : 0.0903
+  • Confusion Matrix  : TP=27,081 | FP=588,764 | FN=0 | TN=134,155
+  • Est. Error Cost   : $2,943,820.00 (c_FN=$100, c_FP=$5)
+
+==================================================
+FINAL TEST SET PERFORMANCE COMPARISON SUMMARY
+==================================================
+                         Model  Threshold   PR-AUC  Precision   Recall  F1-Score       MCC  Total Cost ($)
+Logistic Regression (Baseline)       0.49 0.033788   0.036107 0.999631  0.069697 -0.000293       3614365.0
+           LightGBM Classifier       0.32 0.044062   0.043974 0.999335  0.084241  0.090167       2943665.0
+      Random Forest Classifier       0.23 0.043964   0.043974 1.000000  0.084243  0.090335       2943820.0
+==================================================
+
